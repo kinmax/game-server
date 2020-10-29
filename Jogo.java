@@ -15,6 +15,7 @@ public class Jogo extends UnicastRemoteObject implements JogoInterface {
 	private static volatile boolean devo_iniciar;
 	private static volatile boolean ja_iniciei;
 	private static volatile List<Boolean> cutucos;
+	private static volatile List<Boolean> encerrados;
 
 	public Jogo(int nj) throws RemoteException {
 		lista_jogadores = new ArrayList<Integer>();
@@ -22,9 +23,11 @@ public class Jogo extends UnicastRemoteObject implements JogoInterface {
 		n_jogadores = nj;
 		hostNames = new ArrayList<String>();
 		cutucos = new ArrayList<Boolean>();
+		encerrados = new ArrayList<Boolean>();
 		for(int i = 0; i < nj; i++)
 		{
 			cutucos.add(false);
+			encerrados.add(false);
 		}
 	}
 	
@@ -109,7 +112,16 @@ public class Jogo extends UnicastRemoteObject implements JogoInterface {
 					
 				}
 			}
-			if(lista_jogadores.size() == 0 && ja_iniciei)
+			boolean devo_encerrar = true;
+			for(int i = 0; i < encerrados.size(); i++)
+			{
+				if(encerrados.get(i) == false)
+				{
+					devo_encerrar = false;
+					break;
+				}
+			}
+			if(devo_encerrar && ja_iniciei)
 			{
 				System.out.println("[INFO] Todos os jogadores encerraram seus jogos! Encerrando o servidor!");
 				try {
@@ -165,7 +177,8 @@ public class Jogo extends UnicastRemoteObject implements JogoInterface {
 	public int encerra(int id)
 	{
 		System.out.println("[INFO] O jogador " + id + " encerrou seu jogo!");
-		lista_jogadores.remove(new Integer(id));
+		int index = lista_jogadores.indexOf(id);
+		encerrados.set(index, true);
 		return id;
 	}
 }
